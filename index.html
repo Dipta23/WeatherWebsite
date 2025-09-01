@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meteora - Weather & Local News</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="text-gray-800">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <div class="flex items-center mb-4 md:mb-0">
+                <div class="mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500 animate-cloud" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Meteora</h1>
+                    <p class="text-sm text-gray-600">Your weather companion</p>
+                </div>
+            </div>
+            
+            <button id="locationBtn" class="flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Use my location
+            </button>
+        </header>
+        
+        <!-- Main Search -->
+        <div class="mb-12 relative">
+            <div class="search-box bg-white rounded-full p-2 shadow-lg max-w-2xl mx-auto">
+                <form id="weatherForm" class="flex">
+                    <input type="text" id="searchInput" placeholder="Search for a city or address..." class="flex-grow px-6 py-4 rounded-full focus:outline-none bg-gray-50">
+                    <button type="submit" class="bg-blue-500 text-white px-6 py-4 rounded-full hover:bg-blue-600 transition-colors flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Search
+                    </button>
+                </form>
+            </div>
+            <div id="searchSuggestions" class="absolute top-full left-0 right-0 bg-white mt-1 rounded-lg shadow-lg z-10 max-w-2xl mx-auto hidden"></div>
+        </div>
+        
+        <!-- Current Weather Display -->
+        <div id="weatherDisplay" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+            <div class="weather-card rounded-2xl p-8 col-span-2">
+                <div id="currentWeather" class="flex flex-col">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-gray-600 mb-2">Current weather</h2>
+                            <h3 id="currentLocation" class="text-2xl font-bold">New York, USA</h3>
+                        </div>
+                        <div id="currentTime" class="text-gray-500">Thursday, June 30 4:30 PM</div>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row items-center justify-between">
+                        <div class="flex items-center mb-4 md:mb-0">
+                            <div class="relative mr-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-28 w-28 text-yellow-400 animate-sun" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                <div id="currentCondition" class="absolute bottom–0 left-0 right-0 text-center font-medium">Sunny</div>
+                            </div>
+                            <div>
+                                <div id="currentTemp" class="temperature-display mb-2">72°</div>
+                                <div id="currentHighLow" class="text-gray-600">H:76° L:64°</div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                                </svg>
+                                <span id="humidity">Humidity: 42%</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                <span id="uvIndex">UV Index: 6</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                                </svg>
+                                <span id="windSpeed">Wind: 8 mph NW</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                                </svg>
+                                <span id="precipitation">Precip: 0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-100">
+                        <h3 class="text-lg font-semibold mb-4">Hourly Forecast</h3>
+                        <div id="hourlyForecast" class="flex overflow-x-auto pb-2">
+                            <!-- Hourly forecast items will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="weather-card rounded-2xl p-8">
+                <h3 class="text-lg font-semibold mb-6">7-Day Forecast</h3>
+                <div id="dailyForecast" class="space-y-4">
+                    <!-- Daily forecast items will be added here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Local News Section -->
+        <div id="newsSection" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Local News</h2>
+                <select id="newsLocationSelect" class="bg-gray-100 px-4 py-2 rounded-lg focus:outline-none border border-gray-200">
+                    <option value="current">Current Location</option>
+                    <option value="new_york">New York</option>
+                    <option value="london">London</option>
+                    <option value="tokyo">Tokyo</option>
+                    <option value="paris">Paris</option>
+                </select>
+            </div>
+            
+            <div id="newsCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- News cards will be added here -->
+            </div>
+            
+            <div class="flex justify-center mt-8">
+                <button id="loadMoreNews" class="px-6 py-3 bg-white text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-50 transition-colors">
+                    Load More News
+                </button>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="py-8 text-center text-gray-600 border-t border-gray-200">
+            <p>© 2025 Meteora Weather. All rights reserved.</p>
+            <p class="mt-2 text-sm">Weather data powered by OpenWeatherMap, news from NewsAPI</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+

@@ -1,6 +1,6 @@
 // ====== CONFIG ======
-const WEATHER_API_KEY = "your api key"; 
-const NEWS_API_KEY = "your api key";
+const WEATHER_API_KEY = "eee6a0b1e2b14f6fc76bb7a90ac02368"; 
+//const NEWS_API_KEY = "f79eae4b942b4bfeb6a8b97504ca0915";
 
 // ====== UV ESTIMATION FUNCTION ======
 function estimateUV(cloudCover, isDaytime) {
@@ -173,9 +173,7 @@ async function fetchNews(query, page = 1) {
     currentNewsQuery = query;
     currentNewsPage = page;
 
-    const res = await fetch(
-        `https://newsapi.org/v2/everything?q=${query}&sortBy=publishedAt&pageSize=6&page=${page}&apiKey=${NEWS_API_KEY}`
-    );
+    const res = await fetch(`/.netlify/functions/news?q=${query}&page=${page}`);
     const data = await res.json();
 
     if (data.status !== "ok") {
@@ -183,9 +181,8 @@ async function fetchNews(query, page = 1) {
         return;
     }
 
-    // Append instead of replacing for page > 1
     if (page === 1) newsCardsEl.innerHTML = '';
-    
+
     data.articles.forEach(article => {
         newsCardsEl.innerHTML += `
             <div class="bg-white rounded-lg shadow p-4">
@@ -199,6 +196,7 @@ async function fetchNews(query, page = 1) {
 
     createLoadMoreButton();
 }
+
 
 // ===== Load More Function =====
 function loadMoreNews() {

@@ -2,6 +2,15 @@
 const WEATHER_API_KEY = "eee6a0b1e2b14f6fc76bb7a90ac02368"; 
 const NEWS_API_KEY = "f79eae4b942b4bfeb6a8b97504ca0915";
 
+// ====== UV ESTIMATION FUNCTION ======
+function estimateUV(cloudCover, isDaytime) {
+    if (!isDaytime) return 0;
+    if (cloudCover < 20) return 9;      // clear sky
+    if (cloudCover < 50) return 6;      // partly cloudy
+    if (cloudCover < 80) return 3;      // mostly cloudy
+    return 1;                           // overcast
+}
+
 // DOM Elements
 const weatherForm = document.getElementById("weatherForm");
 const searchInput = document.getElementById("searchInput");
@@ -19,6 +28,11 @@ const hourlyForecastEl = document.getElementById("hourlyForecast");
 const dailyForecastEl = document.getElementById("dailyForecast");
 const newsCardsEl = document.getElementById("newsCards");
 const newsLocationSelect = document.getElementById("newsLocationSelect");
+
+window.addEventListener('DOMContentLoaded', () => {
+    createLoadMoreButton();
+});
+
 
 // ====== MAIN FUNCTIONS ======
 
@@ -75,13 +89,18 @@ async function getWeather(lat, lon) {
     });
 
     const daily = Object.values(dailyMap);
+    // === Estimate UV ===
+    const cloudCover = currentData.clouds.all;
+    const isDaytime = currentData.weather[0].icon.includes("d");
+    const estimatedUV = estimateUV(cloudCover, isDaytime);
+
 
     // Match One Call structure
     return {
         current: {
             temp: currentData.main.temp,
             humidity: currentData.main.humidity,
-            uvi: 0, // no UV from free API
+            uvi: estimatedUV, // no UV from free API
             wind_speed: currentData.wind.speed,
             weather: currentData.weather,
         },
@@ -102,13 +121,18 @@ function displayWeather(locationName, data) {
         hour: "numeric",
         minute: "numeric"
     });
+    const iconCode = data.current.weather[0].icon;
+    document.getElementById("currentIcon").src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+    //document.getElementById("currentIcon").alt = data.current.weather[0].description;
+
     currentConditionEl.textContent = data.current.weather[0].description;
     currentTempEl.textContent = `${Math.round(data.current.temp)}°`;
     currentHighLowEl.textContent = `H:${Math.round(data.daily[0].temp.max)}° L:${Math.round(data.daily[0].temp.min)}°`;
     humidityEl.textContent = `Humidity: ${data.current.humidity}%`;
     uvIndexEl.textContent = `UV Index: ${data.current.uvi}`;
     windSpeedEl.textContent = `Wind: ${Math.round(data.current.wind_speed)} m/s`;
-    precipitationEl.textContent = `Precip: ${data.daily[0].pop * 100}%`;
+    precipitationEl.textContent = `Rain Chance: ${Math.round(data.daily[0].pop * 100)}%`;
+
 
     // Hourly
     hourlyForecastEl.innerHTML = "";
@@ -142,18 +166,26 @@ function displayWeather(locationName, data) {
 }
 
 // Fetch and display news (CHANGED: added error check)
-async function fetchNews(query) {
+let currentNewsQuery = '';
+let currentNewsPage = 1;
+
+async function fetchNews(query, page = 1) {
+    currentNewsQuery = query;
+    currentNewsPage = page;
+
     const res = await fetch(
-        `https://newsapi.org/v2/everything?q=${query}&sortBy=publishedAt&pageSize=6&apiKey=${NEWS_API_KEY}`
+        `https://newsapi.org/v2/everything?q=${query}&sortBy=publishedAt&pageSize=6&page=${page}&apiKey=${NEWS_API_KEY}`
     );
     const data = await res.json();
 
-    if (data.status !== "ok") { // NEW
-        newsCardsEl.innerHTML = `<p class="text-red-500">News API error: ${data.message}</p>`; // NEW
-        return; // NEW
+    if (data.status !== "ok") {
+        newsCardsEl.innerHTML = `<p class="text-red-500">News API error: ${data.message}</p>`;
+        return;
     }
 
-    newsCardsEl.innerHTML = "";
+    // Append instead of replacing for page > 1
+    if (page === 1) newsCardsEl.innerHTML = '';
+    
     data.articles.forEach(article => {
         newsCardsEl.innerHTML += `
             <div class="bg-white rounded-lg shadow p-4">
@@ -164,6 +196,15 @@ async function fetchNews(query) {
             </div>
         `;
     });
+
+    createLoadMoreButton();
+}
+
+// ===== Load More Function =====
+function loadMoreNews() {
+    if (!currentNewsQuery) return;
+    currentNewsPage += 1;
+    fetchNews(currentNewsQuery, currentNewsPage);
 }
 
 // ====== EVENT LISTENERS ======
@@ -233,3 +274,19 @@ newsLocationSelect.addEventListener("change", () => {
         console.error(err);
     }
 })();
+function createLoadMoreButton() {
+    const container = document.getElementById('newsButtonContainer');
+    container.innerHTML = ''; // Clear previous button
+
+    const button = document.createElement('button');
+    button.id = 'loadMoreNews';
+    button.className = 'px-6 py-3 bg-white text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-50 transition-colors';
+    button.textContent = 'Load More News';
+
+    button.addEventListener('click', () => {
+        console.log('Load more news clicked');
+        loadMoreNews();
+    });
+
+    container.appendChild(button);
+}

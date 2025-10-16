@@ -1,7 +1,7 @@
 // netlify/functions/news.js
 
 export async function handler(event, context) {
-  const API_KEY = "f79eae4b942b4bfeb6a8b97504ca0915"; // Your News API key
+  const API_KEY = "your api key"; // Your News API key
   const params = new URLSearchParams(event.queryStringParameters);
   const query = params.get("q") || "India";
   const page = params.get("page") || "1";

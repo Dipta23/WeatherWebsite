@@ -1,6 +1,6 @@
 // ====== CONFIG ======
-const WEATHER_API_KEY = "eee6a0b1e2b14f6fc76bb7a90ac02368"; 
-const NEWS_API_KEY = "f79eae4b942b4bfeb6a8b97504ca0915";
+const WEATHER_API_KEY = "your api key"; 
+const NEWS_API_KEY = "your api key";
 
 // DOM Elements
 const weatherForm = document.getElementById("weatherForm");
